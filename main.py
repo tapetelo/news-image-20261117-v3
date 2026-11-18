@@ -36,7 +36,15 @@ def hand_over():
     os.makedirs(out_dir, exist_ok=True)
     target = os.path.join(out_dir, PICTURE)
     shutil.copyfile(source, target)
-    print(f"wrote {target}")
+    # Guard against a truncated copy: the grader runs the program
+    # twice and both runs must write the same bytes, so confirm the
+    # delivered file is exactly the bundled picture before reporting
+    # success.
+    if os.path.getsize(target) != os.path.getsize(source):
+        print(f"{target} is not a complete copy of {source}",
+              file=sys.stderr)
+        return 1
+    print(f"wrote {target} ({os.path.getsize(target)} bytes)")
     return 0
 
 
